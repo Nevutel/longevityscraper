@@ -414,6 +414,10 @@
                             <i class="fas fa-bug me-2"></i>
                             Debug
                         </button>
+                        <button id="test-btn" class="btn btn-outline-scientific" onclick="testImports()">
+                            <i class="fas fa-vial me-2"></i>
+                            Test
+                        </button>
                     </div>
                     <div class="loading mt-3" id="scrape-loading">
                         <i class="fas fa-spinner spinner"></i>
@@ -605,26 +609,37 @@
             btn.disabled = true;
             loading.classList.add('show');
             
+            console.log('Triggering research scan...');
+            
             fetch('/api/scrape', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log('Response data:', data);
                 if (data.status === 'success') {
+                    console.log('Research scan started successfully');
                     // Wait a bit then refresh the articles
                     setTimeout(() => {
                         refreshArticles();
                     }, 30000); // Wait 30 seconds for scraping to complete
                 } else {
+                    console.error('Server returned error:', data.message);
                     alert('Error: ' + data.message);
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('Error triggering research scan');
+                console.error('Error triggering research scan:', error);
+                alert('Error triggering research scan: ' + error.message);
             })
             .finally(() => {
                 btn.disabled = false;
@@ -656,6 +671,27 @@
                 .catch(error => {
                     console.error('Debug error:', error);
                     alert('Error getting debug info: ' + error);
+                });
+        }
+
+        function testImports() {
+            fetch('/api/test')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Test results:', data);
+                    
+                    let message = 'Import Test Results:\n\n';
+                    message += `Scraper: ${data.scraper}\n`;
+                    message += `Summarizer: ${data.summarizer}\n`;
+                    message += `Free Summarizer: ${data.free_summarizer}\n`;
+                    message += `Python Version: ${data.python_version}\n`;
+                    message += `Working Directory: ${data.working_directory}`;
+                    
+                    alert(message);
+                })
+                .catch(error => {
+                    console.error('Test error:', error);
+                    alert('Error running test: ' + error.message);
                 });
         }
 
