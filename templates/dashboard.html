@@ -262,6 +262,14 @@
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .source-badge:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            background: var(--accent-blue);
         }
 
         .date-badge {
@@ -441,28 +449,42 @@
 
         <!-- Statistics Cards -->
         <div class="row mb-4">
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="stats-card text-center">
                     <div class="stat-number" id="total-articles">0</div>
                     <div class="stat-label">Total Articles</div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="stats-card text-center">
                     <div class="stat-number">12</div>
                     <div class="stat-label">Research Sources</div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="stats-card text-center">
                     <div class="stat-number" id="scraper-status">Idle</div>
                     <div class="stat-label">System Status</div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="stats-card text-center">
                     <div class="stat-number">7:00 AM</div>
                     <div class="stat-label">Auto-Scan Time</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stats-card text-center">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Title Keywords</div>
+                    <small class="text-muted">anti-aging, longevity, senescence</small>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="stats-card text-center">
+                    <div class="stat-number">✓</div>
+                    <div class="stat-label">Strict Filtering</div>
+                    <small class="text-muted">Title-only matches</small>
                 </div>
             </div>
         </div>
@@ -573,9 +595,9 @@
                                             ${(article.summary || '').substring(0, 200)}${(article.summary || '').length > 200 ? '...' : ''}
                                         </p>
                                         <div class="article-meta">
-                                            <span class="source-badge">
+                                            <a href="${article.url || '#'}" target="_blank" class="source-badge" style="text-decoration: none;" title="Click to read full article">
                                                 ${article.source || 'Unknown'}
-                                            </span>
+                                            </a>
                                             <span class="date-badge">
                                                 ${article.published_date ? article.published_date.substring(0, 10) : ''}
                                             </span>

@@ -8,7 +8,7 @@ import logging
 from datetime import datetime
 from typing import List, Dict, Optional
 import re
-from config import TARGET_WEBSITES, KEYWORDS, SCRAPING_SETTINGS, OUTPUT_SETTINGS
+from config import TARGET_WEBSITES, TITLE_KEYWORDS, CONTENT_KEYWORDS, SCRAPING_SETTINGS, OUTPUT_SETTINGS
 import os
 
 class AntiAgingScraper:
@@ -101,19 +101,31 @@ class AntiAgingScraper:
         return any(re.search(pattern, url, re.IGNORECASE) for pattern in article_patterns)
     
     def filter_articles_by_keywords(self, articles: List[Dict]) -> List[Dict]:
-        """Filter articles based on keywords"""
+        """Filter articles based on keywords with strict title filtering"""
         filtered_articles = []
         
         for article in articles:
             title = article.get('title', '').lower()
             summary = article.get('summary', '').lower()
             
-            # Check if any keyword is in title or summary
-            if any(keyword.lower() in title or keyword.lower() in summary 
-                   for keyword in KEYWORDS):
+            # STRICT TITLE FILTERING - Only include articles with title keywords
+            if SCRAPING_SETTINGS.get('strict_title_filtering', True):
+                title_matches = any(keyword.lower() in title for keyword in TITLE_KEYWORDS)
+                
+                if not title_matches:
+                    # Skip articles that don't have required title keywords
+                    continue
+                
+                self.logger.info(f"Article '{title[:50]}...' passed title filter")
+            
+            # Additional content filtering (optional)
+            content_matches = any(keyword.lower() in title or keyword.lower() in summary 
+                                 for keyword in CONTENT_KEYWORDS)
+            
+            if content_matches:
                 filtered_articles.append(article)
         
-        self.logger.info(f"Filtered {len(filtered_articles)} relevant articles from {len(articles)} total")
+        self.logger.info(f"Filtered {len(filtered_articles)} relevant articles from {len(articles)} total (strict title filtering: {SCRAPING_SETTINGS.get('strict_title_filtering', True)})")
         return filtered_articles
     
     def extract_article_details(self, article: Dict) -> Dict:

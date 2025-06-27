@@ -75,8 +75,15 @@ TARGET_WEBSITES = [
     }
 ]
 
-# Keywords to filter articles
-KEYWORDS = [
+# Keywords to filter articles - STRICT TITLE FILTERING
+TITLE_KEYWORDS = [
+    "anti-aging",
+    "longevity", 
+    "senescence"
+]
+
+# Additional keywords for broader content filtering (optional)
+CONTENT_KEYWORDS = [
     "anti-aging",
     "longevity", 
     "senescence",
@@ -102,7 +109,9 @@ SCRAPING_SETTINGS = {
     "max_articles_per_site": 50,
     "request_delay": 1,  # seconds between requests
     "timeout": 30,  # seconds
-    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    "strict_title_filtering": True,  # Only include articles with title keywords
+    "title_filter_required": True    # Require at least one title keyword match
 }
 
 # Output settings
