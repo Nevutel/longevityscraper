@@ -11,16 +11,7 @@ from config import OUTPUT_SETTINGS
 import logging
 import json
 
-class SafeJSONEncoder(json.JSONEncoder):
-    """Custom JSON encoder to handle problematic values"""
-    def default(self, obj):
-        if pd.isna(obj):
-            return ""
-        return super().default(obj)
-
 app = Flask(__name__)
-app.json = json
-app.json.JSONEncoder = SafeJSONEncoder
 
 # Global variable to track scraping status
 scraping_status = {
