@@ -107,16 +107,68 @@ def get_status():
 def get_articles():
     """API endpoint to get articles data"""
     try:
-        if os.path.exists(OUTPUT_SETTINGS['output_file']):
-            df = pd.read_csv(OUTPUT_SETTINGS['output_file'])
+        output_file = OUTPUT_SETTINGS['output_file']
+        logging.info(f"Checking for articles file: {output_file}")
+        logging.info(f"Current working directory: {os.getcwd()}")
+        logging.info(f"File exists: {os.path.exists(output_file)}")
+        
+        if os.path.exists(output_file):
+            file_size = os.path.getsize(output_file)
+            logging.info(f"File size: {file_size} bytes")
+            
+            df = pd.read_csv(output_file)
+            logging.info(f"DataFrame shape: {df.shape}")
+            logging.info(f"DataFrame columns: {list(df.columns)}")
+            
             articles = df.to_dict('records')
-            logging.info(f"Loaded {len(articles)} articles from {OUTPUT_SETTINGS['output_file']}")
+            logging.info(f"Converted to {len(articles)} articles")
+            
+            # Log first few articles for debugging
+            if articles:
+                logging.info(f"First article keys: {list(articles[0].keys())}")
+                logging.info(f"First article title: {articles[0].get('title', 'NO_TITLE')}")
+            
             return jsonify(articles)
         else:
-            logging.info(f"Output file {OUTPUT_SETTINGS['output_file']} does not exist")
+            logging.info(f"Output file {output_file} does not exist")
             return jsonify([])
     except Exception as e:
         logging.error(f"Error loading articles: {str(e)}")
+        import traceback
+        logging.error(f"Traceback: {traceback.format_exc()}")
+        return jsonify({'error': str(e)})
+
+@app.route('/api/debug')
+def debug_info():
+    """Debug endpoint to check file system and data"""
+    try:
+        import os
+        import glob
+        
+        debug_info = {
+            'current_directory': os.getcwd(),
+            'files_in_directory': os.listdir('.'),
+            'csv_files': glob.glob('*.csv'),
+            'output_file': OUTPUT_SETTINGS['output_file'],
+            'output_file_exists': os.path.exists(OUTPUT_SETTINGS['output_file']),
+            'backup_file_exists': os.path.exists(OUTPUT_SETTINGS['backup_file']),
+            'scraping_status': scraping_status
+        }
+        
+        if os.path.exists(OUTPUT_SETTINGS['output_file']):
+            file_size = os.path.getsize(OUTPUT_SETTINGS['output_file'])
+            debug_info['output_file_size'] = file_size
+            
+            try:
+                df = pd.read_csv(OUTPUT_SETTINGS['output_file'])
+                debug_info['dataframe_shape'] = df.shape
+                debug_info['dataframe_columns'] = list(df.columns)
+                debug_info['first_row'] = df.iloc[0].to_dict() if len(df) > 0 else None
+            except Exception as e:
+                debug_info['csv_read_error'] = str(e)
+        
+        return jsonify(debug_info)
+    except Exception as e:
         return jsonify({'error': str(e)})
 
 def schedule_daily_scrape():

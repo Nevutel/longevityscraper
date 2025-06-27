@@ -73,6 +73,10 @@
                                     <i class="fas fa-sync-alt me-2"></i>
                                     Refresh Articles
                                 </button>
+                                <button id="debug-btn" class="btn btn-outline-info ms-2" onclick="debugInfo()">
+                                    <i class="fas fa-bug me-2"></i>
+                                    Debug
+                                </button>
                                 <div class="loading mt-2" id="scrape-loading">
                                     <i class="fas fa-spinner fa-spin me-2"></i>
                                     Scraping in progress...
@@ -222,21 +226,28 @@
         }
 
         function refreshArticles() {
+            console.log('Refreshing articles...');
             fetch('/api/articles')
-                .then(response => response.json())
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
                 .then(articles => {
+                    console.log('Articles received:', articles);
                     const container = document.getElementById('articles-container');
                     
                     if (articles && articles.length > 0) {
+                        console.log(`Displaying ${articles.length} articles`);
                         let html = '';
-                        articles.forEach(article => {
+                        articles.forEach((article, index) => {
+                            console.log(`Article ${index}:`, article);
                             html += `
                                 <div class="article-card card mb-3">
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-8">
                                                 <h6 class="card-title">
-                                                    <a href="${article.url}" target="_blank" class="text-decoration-none">
+                                                    <a href="${article.url || '#'}" target="_blank" class="text-decoration-none">
                                                         ${article.title || 'No title'}
                                                     </a>
                                                 </h6>
@@ -253,7 +264,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-4 text-end">
-                                                <a href="${article.url}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                                <a href="${article.url || '#'}" target="_blank" class="btn btn-outline-primary btn-sm">
                                                     <i class="fas fa-external-link-alt me-1"></i>
                                                     Read Article
                                                 </a>
@@ -265,6 +276,7 @@
                         });
                         container.innerHTML = html;
                     } else {
+                        console.log('No articles to display');
                         container.innerHTML = `
                             <div class="text-center py-5">
                                 <i class="fas fa-newspaper fa-3x text-muted mb-3"></i>
@@ -276,6 +288,7 @@
                 })
                 .catch(error => {
                     console.error('Error refreshing articles:', error);
+                    alert('Error refreshing articles: ' + error);
                 });
         }
 
@@ -311,6 +324,33 @@
                 btn.disabled = false;
                 loading.classList.remove('show');
             });
+        }
+
+        function debugInfo() {
+            fetch('/api/debug')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Debug info:', data);
+                    alert('Debug info logged to console. Check browser console for details.');
+                    
+                    // Also display key info in alert
+                    let info = `Current directory: ${data.current_directory}\n`;
+                    info += `Output file: ${data.output_file}\n`;
+                    info += `File exists: ${data.output_file_exists}\n`;
+                    info += `Articles count: ${data.scraping_status.articles_count}\n`;
+                    
+                    if (data.output_file_exists) {
+                        info += `File size: ${data.output_file_size} bytes\n`;
+                        info += `DataFrame shape: ${data.dataframe_shape}\n`;
+                        info += `Columns: ${data.dataframe_columns.join(', ')}\n`;
+                    }
+                    
+                    alert(info);
+                })
+                .catch(error => {
+                    console.error('Debug error:', error);
+                    alert('Error getting debug info: ' + error);
+                });
         }
     </script>
 </body>
