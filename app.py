@@ -109,10 +109,14 @@ def get_articles():
     try:
         if os.path.exists(OUTPUT_SETTINGS['output_file']):
             df = pd.read_csv(OUTPUT_SETTINGS['output_file'])
-            return jsonify(df.to_dict('records'))
+            articles = df.to_dict('records')
+            logging.info(f"Loaded {len(articles)} articles from {OUTPUT_SETTINGS['output_file']}")
+            return jsonify(articles)
         else:
+            logging.info(f"Output file {OUTPUT_SETTINGS['output_file']} does not exist")
             return jsonify([])
     except Exception as e:
+        logging.error(f"Error loading articles: {str(e)}")
         return jsonify({'error': str(e)})
 
 def schedule_daily_scrape():

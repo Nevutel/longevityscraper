@@ -69,6 +69,10 @@
                                     <i class="fas fa-play me-2"></i>
                                     Start Scraping
                                 </button>
+                                <button id="refresh-btn" class="btn btn-outline-secondary ms-2" onclick="refreshArticles()">
+                                    <i class="fas fa-sync-alt me-2"></i>
+                                    Refresh Articles
+                                </button>
                                 <div class="loading mt-2" id="scrape-loading">
                                     <i class="fas fa-spinner fa-spin me-2"></i>
                                     Scraping in progress...
@@ -206,9 +210,72 @@
                         lastRun.textContent = date.toLocaleString();
                     }
                     articlesCount.textContent = data.articles_count;
+                    
+                    // If scraping just finished and we have articles, refresh the display
+                    if (!data.is_running && data.articles_count > 0) {
+                        refreshArticles();
+                    }
                 })
                 .catch(error => {
                     console.error('Error updating status:', error);
+                });
+        }
+
+        function refreshArticles() {
+            fetch('/api/articles')
+                .then(response => response.json())
+                .then(articles => {
+                    const container = document.getElementById('articles-container');
+                    
+                    if (articles && articles.length > 0) {
+                        let html = '';
+                        articles.forEach(article => {
+                            html += `
+                                <div class="article-card card mb-3">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <h6 class="card-title">
+                                                    <a href="${article.url}" target="_blank" class="text-decoration-none">
+                                                        ${article.title || 'No title'}
+                                                    </a>
+                                                </h6>
+                                                <p class="card-text text-muted small">
+                                                    ${(article.summary || '').substring(0, 200)}${(article.summary || '').length > 200 ? '...' : ''}
+                                                </p>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="badge bg-secondary source-badge">
+                                                        ${article.source || 'Unknown'}
+                                                    </span>
+                                                    <small class="text-muted">
+                                                        ${article.published_date ? article.published_date.substring(0, 10) : ''}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 text-end">
+                                                <a href="${article.url}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-external-link-alt me-1"></i>
+                                                    Read Article
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = `
+                            <div class="text-center py-5">
+                                <i class="fas fa-newspaper fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No articles found</h5>
+                                <p class="text-muted">Click "Start Scraping" to fetch the latest anti-aging research articles.</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing articles:', error);
                 });
         }
 
@@ -228,9 +295,9 @@
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    // Wait a bit then refresh the page to show new articles
+                    // Wait a bit then refresh the articles
                     setTimeout(() => {
-                        location.reload();
+                        refreshArticles();
                     }, 30000); // Wait 30 seconds for scraping to complete
                 } else {
                     alert('Error: ' + data.message);

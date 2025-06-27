@@ -9,6 +9,7 @@ from datetime import datetime
 from typing import List, Dict, Optional
 import re
 from config import TARGET_WEBSITES, KEYWORDS, SCRAPING_SETTINGS, OUTPUT_SETTINGS
+import os
 
 class AntiAgingScraper:
     def __init__(self):
@@ -211,18 +212,36 @@ class AntiAgingScraper:
             self.logger.warning("No articles to save")
             return
         
-        df = pd.DataFrame(articles)
-        
-        # Add timestamp
-        df['scraped_date'] = datetime.now().isoformat()
-        
-        # Save to CSV
-        df.to_csv(OUTPUT_SETTINGS['output_file'], index=False)
-        self.logger.info(f"Saved {len(articles)} articles to {OUTPUT_SETTINGS['output_file']}")
-        
-        # Create backup
-        df.to_csv(OUTPUT_SETTINGS['backup_file'], index=False)
-        self.logger.info(f"Created backup at {OUTPUT_SETTINGS['backup_file']}")
+        try:
+            df = pd.DataFrame(articles)
+            
+            # Add timestamp
+            df['scraped_date'] = datetime.now().isoformat()
+            
+            # Get absolute paths
+            output_path = os.path.abspath(OUTPUT_SETTINGS['output_file'])
+            backup_path = os.path.abspath(OUTPUT_SETTINGS['backup_file'])
+            
+            self.logger.info(f"Saving {len(articles)} articles to {output_path}")
+            
+            # Save to CSV
+            df.to_csv(output_path, index=False)
+            self.logger.info(f"Successfully saved {len(articles)} articles to {output_path}")
+            
+            # Create backup
+            df.to_csv(backup_path, index=False)
+            self.logger.info(f"Created backup at {backup_path}")
+            
+            # Verify file was created
+            if os.path.exists(output_path):
+                file_size = os.path.getsize(output_path)
+                self.logger.info(f"File exists with size: {file_size} bytes")
+            else:
+                self.logger.error(f"File was not created at {output_path}")
+                
+        except Exception as e:
+            self.logger.error(f"Error saving results: {str(e)}")
+            raise
     
     def run(self):
         """Main method to run the scraper"""
