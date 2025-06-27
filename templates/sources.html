@@ -7,134 +7,82 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --accent-color: #e74c3c;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --light-bg: #ecf0f1;
-            --dark-bg: #2c3e50;
-            --text-light: #ffffff;
-            --text-dark: #2c3e50;
-        }
-
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #181c2f 0%, #6a1b9a 50%, #00bcd4 100%);
         }
-
-        .main-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            margin: 20px auto;
-            max-width: 1200px;
+        .glass {
+            background: rgba(255,255,255,0.08);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.18);
         }
-
-        .header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: var(--text-light);
-            padding: 30px;
-            border-radius: 20px 20px 0 0;
-            text-align: center;
+        .header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 2rem;
+            background: rgba(30, 30, 60, 0.7);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
         }
-
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin: 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        .logo-placeholder {
+            width: 48px; height: 48px;
+            background: linear-gradient(135deg, #00bcd4, #6a1b9a);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
         }
-
-        .header p {
-            font-size: 1.1rem;
-            margin: 10px 0 0 0;
-            opacity: 0.9;
+        .main-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #fff;
+            margin-left: 1rem;
+            letter-spacing: 1px;
         }
-
-        .back-btn {
-            position: absolute;
-            top: 30px;
-            left: 30px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            color: white;
-            text-decoration: none;
-            transform: translateY(-2px);
-        }
-
         .sources-intro {
-            padding: 30px;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-radius: 0 0 20px 20px;
+            padding: 2.5rem 2rem 1.5rem 2rem;
             text-align: center;
-            border-bottom: 1px solid #dee2e6;
         }
-
         .sources-intro h3 {
-            color: var(--text-dark);
+            color: #fff;
             margin-bottom: 15px;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 2rem;
         }
-
         .sources-intro p {
-            color: #666;
-            font-size: 1.1rem;
-            margin: 0;
+            color: #e0e0e0;
+            font-size: 1.15rem;
+            margin: 0 auto;
+            max-width: 700px;
         }
-
         .sources-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
-            padding: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 28px;
+            padding: 2rem;
         }
-
         .source-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 2px solid transparent;
+            background: rgba(255,255,255,0.10);
+            border-radius: 18px;
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
+            box-shadow: 0 2px 12px rgba(0,188,212,0.08);
+            color: #fff;
             position: relative;
             overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.13);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-
-        .source-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--secondary-color), var(--success-color));
-        }
-
         .source-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 32px rgba(106,27,154,0.18);
         }
-
         .source-header {
             display: flex;
             align-items: center;
             margin-bottom: 15px;
         }
-
         .source-icon {
             width: 50px;
             height: 50px;
@@ -145,22 +93,19 @@
             font-size: 1.5rem;
             color: white;
             margin-right: 15px;
-            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            background: linear-gradient(135deg, #00bcd4, #6a1b9a);
         }
-
         .source-title {
             font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--text-dark);
+            font-weight: 700;
+            color: #fff;
             margin: 0;
         }
-
         .source-description {
-            color: #666;
+            color: #e0e0e0;
             line-height: 1.6;
             margin-bottom: 15px;
         }
-
         .source-meta {
             display: flex;
             justify-content: space-between;
@@ -168,38 +113,31 @@
             flex-wrap: wrap;
             gap: 10px;
         }
-
         .source-category {
-            background: linear-gradient(135deg, var(--success-color), #229954);
-            color: white;
+            background: linear-gradient(90deg, #00bcd4, #6a1b9a);
+            color: #fff;
             padding: 5px 12px;
             border-radius: 15px;
             font-size: 0.8rem;
             font-weight: 500;
         }
-
         .source-link {
-            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
-            color: white;
+            background: linear-gradient(90deg, #00bcd4, #6a1b9a);
+            color: #fff;
             padding: 8px 15px;
             border-radius: 20px;
             text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: background 0.2s;
             display: inline-flex;
             align-items: center;
             gap: 5px;
         }
-
         .source-link:hover {
-            background: linear-gradient(135deg, #2980b9, var(--secondary-color));
-            color: white;
-            text-decoration: none;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            background: linear-gradient(90deg, #6a1b9a, #00bcd4);
+            color: #fff;
         }
-
         .source-stats {
             display: flex;
             gap: 15px;
@@ -207,397 +145,386 @@
             padding-top: 15px;
             border-top: 1px solid #eee;
         }
-
         .stat-item {
             text-align: center;
             flex: 1;
         }
-
         .stat-number {
             font-size: 1.2rem;
             font-weight: 700;
-            color: var(--secondary-color);
+            color: #00bcd4;
             display: block;
         }
-
         .stat-label {
             font-size: 0.8rem;
-            color: #888;
+            color: #b2ebf2;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .sources-grid {
-                grid-template-columns: 1fr;
-                padding: 20px;
-            }
-            
-            .source-card {
-                padding: 20px;
-            }
-            
-            .back-btn {
-                position: relative;
-                top: auto;
-                left: auto;
-                margin-bottom: 20px;
-                display: inline-block;
-            }
+        .back-btn {
+            background: linear-gradient(90deg, #00bcd4, #6a1b9a);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 0.7rem 1.7rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 2rem 0 0 2rem;
+            display: inline-block;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .back-btn:hover {
+            background: linear-gradient(90deg, #6a1b9a, #00bcd4);
+            color: #fff;
+        }
+        @media (max-width: 900px) {
+            .sources-grid { grid-template-columns: 1fr; padding: 1rem; }
+            .header-bar { flex-direction: column; align-items: flex-start; padding: 1.2rem 1rem; }
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="main-container">
-            <!-- Header -->
-            <div class="header">
-                <a href="/" class="back-btn">
-                    <i class="fas fa-arrow-left"></i> Back to Dashboard
-                </a>
-                <h1><i class="fas fa-globe"></i> Research Sources</h1>
-                <p>12 Leading Scientific Sources for Anti-Aging Research</p>
+    <div class="glass" style="margin: 2.5rem auto; max-width: 1100px;">
+        <div class="header-bar">
+            <div class="d-flex align-items-center">
+                <div class="logo-placeholder">
+                    <i class="fas fa-flask fa-lg" style="color:#fff;"></i>
+                </div>
+                <span class="main-title">Immortal Report</span>
+            </div>
+            <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        </div>
+        <div class="sources-intro">
+            <h3><i class="fas fa-globe"></i> Research Sources</h3>
+            <p>We monitor 12 prestigious scientific sources to bring you the latest anti-aging, longevity, and senescence research. Each source is carefully selected for its scientific rigor and relevance to the field.</p>
+        </div>
+        <div class="sources-grid">
+            <!-- Nature -->
+            <div class="source-card">
+                <div class="source-header">
+                    <div class="source-icon">
+                        <i class="fas fa-atom"></i>
+                    </div>
+                    <h4 class="source-title">Nature</h4>
+                </div>
+                <p class="source-description">One of the world's most prestigious scientific journals, publishing cutting-edge research across all scientific disciplines including aging and longevity studies.</p>
+                <div class="source-meta">
+                    <span class="source-category">Journal</span>
+                    <a href="https://www.nature.com" target="_blank" class="source-link">
+                        <i class="fas fa-external-link-alt"></i> Visit
+                    </a>
+                </div>
+                <div class="source-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">IF: 49.962</span>
+                        <span class="stat-label">Impact Factor</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">1869</span>
+                        <span class="stat-label">Established</span>
+                    </div>
+                </div>
             </div>
 
-            <!-- Introduction -->
-            <div class="sources-intro">
-                <h3><i class="fas fa-info-circle"></i> About Our Sources</h3>
-                <p>We monitor 12 prestigious scientific sources to bring you the latest anti-aging, longevity, and senescence research. Each source is carefully selected for its scientific rigor and relevance to the field.</p>
+            <!-- Science -->
+            <div class="source-card">
+                <div class="source-header">
+                    <div class="source-icon">
+                        <i class="fas fa-microscope"></i>
+                    </div>
+                    <h4 class="source-title">Science</h4>
+                </div>
+                <p class="source-description">The flagship journal of the American Association for the Advancement of Science, featuring breakthrough research in aging, longevity, and cellular senescence.</p>
+                <div class="source-meta">
+                    <span class="source-category">Journal</span>
+                    <a href="https://www.science.org" target="_blank" class="source-link">
+                        <i class="fas fa-external-link-alt"></i> Visit
+                    </a>
+                </div>
+                <div class="source-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">IF: 56.9</span>
+                        <span class="stat-label">Impact Factor</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">1880</span>
+                        <span class="stat-label">Established</span>
+                    </div>
+                </div>
             </div>
 
-            <!-- Sources Grid -->
-            <div class="sources-grid">
-                <!-- Nature -->
-                <div class="source-card">
-                    <div class="source-header">
-                        <div class="source-icon">
-                            <i class="fas fa-atom"></i>
-                        </div>
-                        <h4 class="source-title">Nature</h4>
+            <!-- Cell -->
+            <div class="source-card">
+                <div class="source-header">
+                    <div class="source-icon">
+                        <i class="fas fa-dna"></i>
                     </div>
-                    <p class="source-description">One of the world's most prestigious scientific journals, publishing cutting-edge research across all scientific disciplines including aging and longevity studies.</p>
-                    <div class="source-meta">
-                        <span class="source-category">Journal</span>
-                        <a href="https://www.nature.com" target="_blank" class="source-link">
-                            <i class="fas fa-external-link-alt"></i> Visit
-                        </a>
+                    <h4 class="source-title">Cell</h4>
+                </div>
+                <p class="source-description">Premier journal for molecular biology and cellular research, publishing groundbreaking studies on cellular aging, senescence, and longevity mechanisms.</p>
+                <div class="source-meta">
+                    <span class="source-category">Journal</span>
+                    <a href="https://www.cell.com" target="_blank" class="source-link">
+                        <i class="fas fa-external-link-alt"></i> Visit
+                    </a>
+                </div>
+                <div class="source-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">IF: 66.85</span>
+                        <span class="stat-label">Impact Factor</span>
                     </div>
-                    <div class="source-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">IF: 49.962</span>
-                            <span class="stat-label">Impact Factor</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">1869</span>
-                            <span class="stat-label">Established</span>
-                        </div>
+                    <div class="stat-item">
+                        <span class="stat-number">1974</span>
+                        <span class="stat-label">Established</span>
                     </div>
                 </div>
+            </div>
 
-                <!-- Science -->
-                <div class="source-card">
-                    <div class="source-header">
-                        <div class="source-icon">
-                            <i class="fas fa-microscope"></i>
-                        </div>
-                        <h4 class="source-title">Science</h4>
+            <!-- Nature Aging -->
+            <div class="source-card">
+                <div class="source-header">
+                    <div class="source-icon">
+                        <i class="fas fa-hourglass-half"></i>
                     </div>
-                    <p class="source-description">The flagship journal of the American Association for the Advancement of Science, featuring breakthrough research in aging, longevity, and cellular senescence.</p>
-                    <div class="source-meta">
-                        <span class="source-category">Journal</span>
-                        <a href="https://www.science.org" target="_blank" class="source-link">
-                            <i class="fas fa-external-link-alt"></i> Visit
-                        </a>
+                    <h4 class="source-title">Nature Aging</h4>
+                </div>
+                <p class="source-description">Specialized journal dedicated to aging research, covering molecular mechanisms, interventions, and translational studies in longevity science.</p>
+                <div class="source-meta">
+                    <span class="source-category">Journal</span>
+                    <a href="https://www.nature.com/nataging" target="_blank" class="source-link">
+                        <i class="fas fa-external-link-alt"></i> Visit
+                    </a>
+                </div>
+                <div class="source-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">IF: 16.6</span>
+                        <span class="stat-label">Impact Factor</span>
                     </div>
-                    <div class="source-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">IF: 56.9</span>
-                            <span class="stat-label">Impact Factor</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">1880</span>
-                            <span class="stat-label">Established</span>
-                        </div>
+                    <div class="stat-item">
+                        <span class="stat-number">2021</span>
+                        <span class="stat-label">Established</span>
                     </div>
                 </div>
+            </div>
 
-                <!-- Cell -->
-                <div class="source-card">
-                    <div class="source-header">
-                        <div class="source-icon">
-                            <i class="fas fa-dna"></i>
-                        </div>
-                        <h4 class="source-title">Cell</h4>
+            <!-- Aging Cell -->
+            <div class="source-card">
+                <div class="source-header">
+                    <div class="source-icon">
+                        <i class="fas fa-clock"></i>
                     </div>
-                    <p class="source-description">Premier journal for molecular biology and cellular research, publishing groundbreaking studies on cellular aging, senescence, and longevity mechanisms.</p>
-                    <div class="source-meta">
-                        <span class="source-category">Journal</span>
-                        <a href="https://www.cell.com" target="_blank" class="source-link">
-                            <i class="fas fa-external-link-alt"></i> Visit
-                        </a>
+                    <h4 class="source-title">Aging Cell</h4>
+                </div>
+                <p class="source-description">Open-access journal focusing on cellular and molecular mechanisms of aging, publishing high-quality research on longevity and senescence.</p>
+                <div class="source-meta">
+                    <span class="source-category">Journal</span>
+                    <a href="https://onlinelibrary.wiley.com/journal/14749718" target="_blank" class="source-link">
+                        <i class="fas fa-external-link-alt"></i> Visit
+                    </a>
+                </div>
+                <div class="source-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">IF: 11.005</span>
+                        <span class="stat-label">Impact Factor</span>
                     </div>
-                    <div class="source-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">IF: 66.85</span>
-                            <span class="stat-label">Impact Factor</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">1974</span>
-                            <span class="stat-label">Established</span>
-                        </div>
+                    <div class="stat-item">
+                        <span class="stat-number">2002</span>
+                        <span class="stat-label">Established</span>
                     </div>
                 </div>
+            </div>
 
-                <!-- Nature Aging -->
-                <div class="source-card">
-                    <div class="source-header">
-                        <div class="source-icon">
-                            <i class="fas fa-hourglass-half"></i>
-                        </div>
-                        <h4 class="source-title">Nature Aging</h4>
+            <!-- PNAS -->
+            <div class="source-card">
+                <div class="source-header">
+                    <div class="source-icon">
+                        <i class="fas fa-flask"></i>
                     </div>
-                    <p class="source-description">Specialized journal dedicated to aging research, covering molecular mechanisms, interventions, and translational studies in longevity science.</p>
-                    <div class="source-meta">
-                        <span class="source-category">Journal</span>
-                        <a href="https://www.nature.com/nataging" target="_blank" class="source-link">
-                            <i class="fas fa-external-link-alt"></i> Visit
-                        </a>
+                    <h4 class="source-title">PNAS</h4>
+                </div>
+                <p class="source-description">Proceedings of the National Academy of Sciences, publishing innovative research across all scientific disciplines including aging and longevity studies.</p>
+                <div class="source-meta">
+                    <span class="source-category">Journal</span>
+                    <a href="https://www.pnas.org" target="_blank" class="source-link">
+                        <i class="fas fa-external-link-alt"></i> Visit
+                    </a>
+                </div>
+                <div class="source-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">IF: 11.1</span>
+                        <span class="stat-label">Impact Factor</span>
                     </div>
-                    <div class="source-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">IF: 16.6</span>
-                            <span class="stat-label">Impact Factor</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">2021</span>
-                            <span class="stat-label">Established</span>
-                        </div>
+                    <div class="stat-item">
+                        <span class="stat-number">1915</span>
+                        <span class="stat-label">Established</span>
                     </div>
                 </div>
+            </div>
 
-                <!-- Aging Cell -->
-                <div class="source-card">
-                    <div class="source-header">
-                        <div class="source-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <h4 class="source-title">Aging Cell</h4>
+            <!-- Science Daily -->
+            <div class="source-card">
+                <div class="source-header">
+                    <div class="source-icon">
+                        <i class="fas fa-newspaper"></i>
                     </div>
-                    <p class="source-description">Open-access journal focusing on cellular and molecular mechanisms of aging, publishing high-quality research on longevity and senescence.</p>
-                    <div class="source-meta">
-                        <span class="source-category">Journal</span>
-                        <a href="https://onlinelibrary.wiley.com/journal/14749718" target="_blank" class="source-link">
-                            <i class="fas fa-external-link-alt"></i> Visit
-                        </a>
+                    <h4 class="source-title">Science Daily</h4>
+                </div>
+                <p class="source-description">Leading science news website providing the latest research news and discoveries in aging, longevity, and anti-aging research from top institutions.</p>
+                <div class="source-meta">
+                    <span class="source-category">News</span>
+                    <a href="https://www.sciencedaily.com" target="_blank" class="source-link">
+                        <i class="fas fa-external-link-alt"></i> Visit
+                    </a>
+                </div>
+                <div class="source-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">Daily</span>
+                        <span class="stat-label">Updates</span>
                     </div>
-                    <div class="source-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">IF: 11.005</span>
-                            <span class="stat-label">Impact Factor</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">2002</span>
-                            <span class="stat-label">Established</span>
-                        </div>
+                    <div class="stat-item">
+                        <span class="stat-number">1995</span>
+                        <span class="stat-label">Established</span>
                     </div>
                 </div>
+            </div>
 
-                <!-- PNAS -->
-                <div class="source-card">
-                    <div class="source-header">
-                        <div class="source-icon">
-                            <i class="fas fa-flask"></i>
-                        </div>
-                        <h4 class="source-title">PNAS</h4>
+            <!-- Medical News Today -->
+            <div class="source-card">
+                <div class="source-header">
+                    <div class="source-icon">
+                        <i class="fas fa-heartbeat"></i>
                     </div>
-                    <p class="source-description">Proceedings of the National Academy of Sciences, publishing innovative research across all scientific disciplines including aging and longevity studies.</p>
-                    <div class="source-meta">
-                        <span class="source-category">Journal</span>
-                        <a href="https://www.pnas.org" target="_blank" class="source-link">
-                            <i class="fas fa-external-link-alt"></i> Visit
-                        </a>
+                    <h4 class="source-title">Medical News Today</h4>
+                </div>
+                <p class="source-description">Comprehensive medical news and research coverage, including the latest developments in anti-aging medicine and longevity research.</p>
+                <div class="source-meta">
+                    <span class="source-category">News</span>
+                    <a href="https://www.medicalnewstoday.com" target="_blank" class="source-link">
+                        <i class="fas fa-external-link-alt"></i> Visit
+                    </a>
+                </div>
+                <div class="source-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">Daily</span>
+                        <span class="stat-label">Updates</span>
                     </div>
-                    <div class="source-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">IF: 11.1</span>
-                            <span class="stat-label">Impact Factor</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">1915</span>
-                            <span class="stat-label">Established</span>
-                        </div>
+                    <div class="stat-item">
+                        <span class="stat-number">2003</span>
+                        <span class="stat-label">Established</span>
                     </div>
                 </div>
+            </div>
 
-                <!-- Science Daily -->
-                <div class="source-card">
-                    <div class="source-header">
-                        <div class="source-icon">
-                            <i class="fas fa-newspaper"></i>
-                        </div>
-                        <h4 class="source-title">Science Daily</h4>
+            <!-- EurekAlert! -->
+            <div class="source-card">
+                <div class="source-header">
+                    <div class="source-icon">
+                        <i class="fas fa-lightbulb"></i>
                     </div>
-                    <p class="source-description">Leading science news website providing the latest research news and discoveries in aging, longevity, and anti-aging research from top institutions.</p>
-                    <div class="source-meta">
-                        <span class="source-category">News</span>
-                        <a href="https://www.sciencedaily.com" target="_blank" class="source-link">
-                            <i class="fas fa-external-link-alt"></i> Visit
-                        </a>
+                    <h4 class="source-title">EurekAlert!</h4>
+                </div>
+                <p class="source-description">Science news service operated by AAAS, providing press releases and research news from leading scientific institutions worldwide.</p>
+                <div class="source-meta">
+                    <span class="source-category">News</span>
+                    <a href="https://www.eurekalert.org" target="_blank" class="source-link">
+                        <i class="fas fa-external-link-alt"></i> Visit
+                    </a>
+                </div>
+                <div class="source-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">Daily</span>
+                        <span class="stat-label">Updates</span>
                     </div>
-                    <div class="source-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">Daily</span>
-                            <span class="stat-label">Updates</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">1995</span>
-                            <span class="stat-label">Established</span>
-                        </div>
+                    <div class="stat-item">
+                        <span class="stat-number">1996</span>
+                        <span class="stat-label">Established</span>
                     </div>
                 </div>
+            </div>
 
-                <!-- Medical News Today -->
-                <div class="source-card">
-                    <div class="source-header">
-                        <div class="source-icon">
-                            <i class="fas fa-heartbeat"></i>
-                        </div>
-                        <h4 class="source-title">Medical News Today</h4>
+            <!-- Phys.org -->
+            <div class="source-card">
+                <div class="source-header">
+                    <div class="source-icon">
+                        <i class="fas fa-rocket"></i>
                     </div>
-                    <p class="source-description">Comprehensive medical news and research coverage, including the latest developments in anti-aging medicine and longevity research.</p>
-                    <div class="source-meta">
-                        <span class="source-category">News</span>
-                        <a href="https://www.medicalnewstoday.com" target="_blank" class="source-link">
-                            <i class="fas fa-external-link-alt"></i> Visit
-                        </a>
+                    <h4 class="source-title">Phys.org</h4>
+                </div>
+                <p class="source-description">Science, research, and technology news service covering the latest discoveries in aging research, longevity science, and anti-aging interventions.</p>
+                <div class="source-meta">
+                    <span class="source-category">News</span>
+                    <a href="https://phys.org" target="_blank" class="source-link">
+                        <i class="fas fa-external-link-alt"></i> Visit
+                    </a>
+                </div>
+                <div class="source-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">Daily</span>
+                        <span class="stat-label">Updates</span>
                     </div>
-                    <div class="source-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">Daily</span>
-                            <span class="stat-label">Updates</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">2003</span>
-                            <span class="stat-label">Established</span>
-                        </div>
+                    <div class="stat-item">
+                        <span class="stat-number">2004</span>
+                        <span class="stat-label">Established</span>
                     </div>
                 </div>
+            </div>
 
-                <!-- EurekAlert! -->
-                <div class="source-card">
-                    <div class="source-header">
-                        <div class="source-icon">
-                            <i class="fas fa-lightbulb"></i>
-                        </div>
-                        <h4 class="source-title">EurekAlert!</h4>
+            <!-- New Scientist -->
+            <div class="source-card">
+                <div class="source-header">
+                    <div class="source-icon">
+                        <i class="fas fa-brain"></i>
                     </div>
-                    <p class="source-description">Science news service operated by AAAS, providing press releases and research news from leading scientific institutions worldwide.</p>
-                    <div class="source-meta">
-                        <span class="source-category">News</span>
-                        <a href="https://www.eurekalert.org" target="_blank" class="source-link">
-                            <i class="fas fa-external-link-alt"></i> Visit
-                        </a>
+                    <h4 class="source-title">New Scientist</h4>
+                </div>
+                <p class="source-description">International science magazine covering the latest developments in aging research, longevity science, and breakthrough anti-aging discoveries.</p>
+                <div class="source-meta">
+                    <span class="source-category">Magazine</span>
+                    <a href="https://www.newscientist.com" target="_blank" class="source-link">
+                        <i class="fas fa-external-link-alt"></i> Visit
+                    </a>
+                </div>
+                <div class="source-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">Weekly</span>
+                        <span class="stat-label">Updates</span>
                     </div>
-                    <div class="source-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">Daily</span>
-                            <span class="stat-label">Updates</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">1996</span>
-                            <span class="stat-label">Established</span>
-                        </div>
+                    <div class="stat-item">
+                        <span class="stat-number">1956</span>
+                        <span class="stat-label">Established</span>
                     </div>
                 </div>
+            </div>
 
-                <!-- Phys.org -->
-                <div class="source-card">
-                    <div class="source-header">
-                        <div class="source-icon">
-                            <i class="fas fa-rocket"></i>
-                        </div>
-                        <h4 class="source-title">Phys.org</h4>
+            <!-- Scientific American -->
+            <div class="source-card">
+                <div class="source-header">
+                    <div class="source-icon">
+                        <i class="fas fa-book-open"></i>
                     </div>
-                    <p class="source-description">Science, research, and technology news service covering the latest discoveries in aging research, longevity science, and anti-aging interventions.</p>
-                    <div class="source-meta">
-                        <span class="source-category">News</span>
-                        <a href="https://phys.org" target="_blank" class="source-link">
-                            <i class="fas fa-external-link-alt"></i> Visit
-                        </a>
-                    </div>
-                    <div class="source-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">Daily</span>
-                            <span class="stat-label">Updates</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">2004</span>
-                            <span class="stat-label">Established</span>
-                        </div>
-                    </div>
+                    <h4 class="source-title">Scientific American</h4>
                 </div>
-
-                <!-- New Scientist -->
-                <div class="source-card">
-                    <div class="source-header">
-                        <div class="source-icon">
-                            <i class="fas fa-brain"></i>
-                        </div>
-                        <h4 class="source-title">New Scientist</h4>
-                    </div>
-                    <p class="source-description">International science magazine covering the latest developments in aging research, longevity science, and breakthrough anti-aging discoveries.</p>
-                    <div class="source-meta">
-                        <span class="source-category">Magazine</span>
-                        <a href="https://www.newscientist.com" target="_blank" class="source-link">
-                            <i class="fas fa-external-link-alt"></i> Visit
-                        </a>
-                    </div>
-                    <div class="source-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">Weekly</span>
-                            <span class="stat-label">Updates</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">1956</span>
-                            <span class="stat-label">Established</span>
-                        </div>
-                    </div>
+                <p class="source-description">Long-standing science magazine providing in-depth coverage of aging research, longevity science, and the latest anti-aging breakthroughs.</p>
+                <div class="source-meta">
+                    <span class="source-category">Magazine</span>
+                    <a href="https://www.scientificamerican.com" target="_blank" class="source-link">
+                        <i class="fas fa-external-link-alt"></i> Visit
+                    </a>
                 </div>
-
-                <!-- Scientific American -->
-                <div class="source-card">
-                    <div class="source-header">
-                        <div class="source-icon">
-                            <i class="fas fa-book-open"></i>
-                        </div>
-                        <h4 class="source-title">Scientific American</h4>
+                <div class="source-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">Monthly</span>
+                        <span class="stat-label">Updates</span>
                     </div>
-                    <p class="source-description">Long-standing science magazine providing in-depth coverage of aging research, longevity science, and the latest anti-aging breakthroughs.</p>
-                    <div class="source-meta">
-                        <span class="source-category">Magazine</span>
-                        <a href="https://www.scientificamerican.com" target="_blank" class="source-link">
-                            <i class="fas fa-external-link-alt"></i> Visit
-                        </a>
-                    </div>
-                    <div class="source-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">Monthly</span>
-                            <span class="stat-label">Updates</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">1845</span>
-                            <span class="stat-label">Established</span>
-                        </div>
+                    <div class="stat-item">
+                        <span class="stat-number">1845</span>
+                        <span class="stat-label">Established</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html> 
