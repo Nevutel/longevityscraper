@@ -213,7 +213,21 @@ class AntiAgingScraper:
             return
         
         try:
-            df = pd.DataFrame(articles)
+            # Clean the articles data before creating DataFrame
+            cleaned_articles = []
+            for article in articles:
+                cleaned_article = {}
+                for key, value in article.items():
+                    # Handle None, NaN, and empty values
+                    if value is None or (isinstance(value, str) and value.lower() in ['nan', 'none', '']):
+                        cleaned_article[key] = ''
+                    elif isinstance(value, (int, float)) and (pd.isna(value) or str(value) == 'nan'):
+                        cleaned_article[key] = ''
+                    else:
+                        cleaned_article[key] = str(value) if value is not None else ''
+                cleaned_articles.append(cleaned_article)
+            
+            df = pd.DataFrame(cleaned_articles)
             
             # Add timestamp
             df['scraped_date'] = datetime.now().isoformat()
@@ -222,11 +236,11 @@ class AntiAgingScraper:
             output_path = os.path.abspath(OUTPUT_SETTINGS['output_file'])
             backup_path = os.path.abspath(OUTPUT_SETTINGS['backup_file'])
             
-            self.logger.info(f"Saving {len(articles)} articles to {output_path}")
+            self.logger.info(f"Saving {len(cleaned_articles)} articles to {output_path}")
             
             # Save to CSV
             df.to_csv(output_path, index=False)
-            self.logger.info(f"Successfully saved {len(articles)} articles to {output_path}")
+            self.logger.info(f"Successfully saved {len(cleaned_articles)} articles to {output_path}")
             
             # Create backup
             df.to_csv(backup_path, index=False)

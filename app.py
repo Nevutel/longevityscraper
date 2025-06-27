@@ -9,8 +9,18 @@ from summarizer import Summarizer
 from free_summarizer import FreeSummarizer
 from config import OUTPUT_SETTINGS
 import logging
+import json
+
+class SafeJSONEncoder(json.JSONEncoder):
+    """Custom JSON encoder to handle problematic values"""
+    def default(self, obj):
+        if pd.isna(obj):
+            return ""
+        return super().default(obj)
 
 app = Flask(__name__)
+app.json = json
+app.json.JSONEncoder = SafeJSONEncoder
 
 # Global variable to track scraping status
 scraping_status = {
@@ -120,15 +130,34 @@ def get_articles():
             logging.info(f"DataFrame shape: {df.shape}")
             logging.info(f"DataFrame columns: {list(df.columns)}")
             
+            # Clean the data before converting to JSON
+            df = df.replace({pd.NA: None, pd.NaT: None})
+            df = df.fillna('')  # Replace NaN with empty strings
+            
+            # Convert to records and clean each article
             articles = df.to_dict('records')
-            logging.info(f"Converted to {len(articles)} articles")
+            cleaned_articles = []
+            
+            for article in articles:
+                cleaned_article = {}
+                for key, value in article.items():
+                    # Handle different types of invalid values
+                    if pd.isna(value) or value == 'nan' or value == 'NaN' or value == 'None':
+                        cleaned_article[key] = ''
+                    elif isinstance(value, (int, float)) and (pd.isna(value) or str(value) == 'nan'):
+                        cleaned_article[key] = ''
+                    else:
+                        cleaned_article[key] = str(value) if value is not None else ''
+                cleaned_articles.append(cleaned_article)
+            
+            logging.info(f"Converted to {len(cleaned_articles)} articles")
             
             # Log first few articles for debugging
-            if articles:
-                logging.info(f"First article keys: {list(articles[0].keys())}")
-                logging.info(f"First article title: {articles[0].get('title', 'NO_TITLE')}")
+            if cleaned_articles:
+                logging.info(f"First article keys: {list(cleaned_articles[0].keys())}")
+                logging.info(f"First article title: {cleaned_articles[0].get('title', 'NO_TITLE')}")
             
-            return jsonify(articles)
+            return jsonify(cleaned_articles)
         else:
             logging.info(f"Output file {output_file} does not exist")
             return jsonify([])
@@ -163,7 +192,23 @@ def debug_info():
                 df = pd.read_csv(OUTPUT_SETTINGS['output_file'])
                 debug_info['dataframe_shape'] = df.shape
                 debug_info['dataframe_columns'] = list(df.columns)
-                debug_info['first_row'] = df.iloc[0].to_dict() if len(df) > 0 else None
+                
+                # Clean the data before showing first row
+                df_clean = df.replace({pd.NA: None, pd.NaT: None})
+                df_clean = df_clean.fillna('')
+                
+                if len(df_clean) > 0:
+                    first_row = df_clean.iloc[0].to_dict()
+                    # Convert all values to strings to avoid JSON issues
+                    cleaned_first_row = {}
+                    for key, value in first_row.items():
+                        if pd.isna(value) or value == 'nan' or value == 'NaN' or value == 'None':
+                            cleaned_first_row[key] = ''
+                        else:
+                            cleaned_first_row[key] = str(value) if value is not None else ''
+                    debug_info['first_row'] = cleaned_first_row
+                else:
+                    debug_info['first_row'] = None
             except Exception as e:
                 debug_info['csv_read_error'] = str(e)
         
