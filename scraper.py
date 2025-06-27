@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from newspaper import Article
 import time
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 import re
 from config import TARGET_WEBSITES, TITLE_KEYWORDS, CONTENT_KEYWORDS, SCRAPING_SETTINGS, OUTPUT_SETTINGS
@@ -101,12 +101,36 @@ class AntiAgingScraper:
         return any(re.search(pattern, url, re.IGNORECASE) for pattern in article_patterns)
     
     def filter_articles_by_keywords(self, articles: List[Dict]) -> List[Dict]:
-        """Filter articles based on keywords with strict title filtering"""
+        """Filter articles based on keywords with strict title filtering and date filtering"""
         filtered_articles = []
+        
+        # Calculate date threshold (30 days ago)
+        date_threshold = datetime.now() - timedelta(days=SCRAPING_SETTINGS.get('date_filter_days', 30))
         
         for article in articles:
             title = article.get('title', '').lower()
             summary = article.get('summary', '').lower()
+            published_date = article.get('published_date', '')
+            
+            # DATE FILTERING - Only include recent articles (last 30 days)
+            if SCRAPING_SETTINGS.get('require_recent_articles', True) and published_date:
+                try:
+                    # Try to parse the published date
+                    if isinstance(published_date, str):
+                        # Handle different date formats
+                        if 'T' in published_date:
+                            # ISO format: 2024-01-15T10:30:00
+                            article_date = datetime.fromisoformat(published_date.replace('Z', '+00:00'))
+                        else:
+                            # Simple date format: 2024-01-15
+                            article_date = datetime.strptime(published_date[:10], '%Y-%m-%d')
+                        
+                        if article_date < date_threshold:
+                            self.logger.info(f"Article '{title[:50]}...' filtered out (too old: {published_date})")
+                            continue
+                except Exception as e:
+                    self.logger.warning(f"Could not parse date '{published_date}' for article '{title[:50]}...': {str(e)}")
+                    # If we can't parse the date, include the article (don't filter out)
             
             # STRICT TITLE FILTERING - Only include articles with title keywords
             if SCRAPING_SETTINGS.get('strict_title_filtering', True):
@@ -125,7 +149,7 @@ class AntiAgingScraper:
             if content_matches:
                 filtered_articles.append(article)
         
-        self.logger.info(f"Filtered {len(filtered_articles)} relevant articles from {len(articles)} total (strict title filtering: {SCRAPING_SETTINGS.get('strict_title_filtering', True)})")
+        self.logger.info(f"Filtered {len(filtered_articles)} relevant articles from {len(articles)} total (strict title filtering: {SCRAPING_SETTINGS.get('strict_title_filtering', True)}, date filtering: {SCRAPING_SETTINGS.get('require_recent_articles', True)})")
         return filtered_articles
     
     def extract_article_details(self, article: Dict) -> Dict:

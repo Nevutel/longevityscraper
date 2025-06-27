@@ -1,6 +1,8 @@
 from flask import Flask, render_template, jsonify, request
 import pandas as pd
 import os
+import sys
+import traceback
 from datetime import datetime
 import threading
 import time
@@ -74,7 +76,6 @@ def run_scraper_background():
         
     except Exception as e:
         logging.error(f"Error in background scraper: {str(e)}")
-        import traceback
         logging.error(f"Background scraper traceback: {traceback.format_exc()}")
         scraping_status['error'] = str(e)
         scraping_status['is_running'] = False
@@ -99,6 +100,11 @@ def dashboard():
                              status=scraping_status,
                              error=str(e))
 
+@app.route('/sources')
+def sources():
+    """Sources page showing all research sources"""
+    return render_template('sources.html')
+
 @app.route('/api/scrape', methods=['POST'])
 def trigger_scrape():
     """API endpoint to trigger scraping"""
@@ -121,7 +127,6 @@ def trigger_scrape():
         
     except Exception as e:
         logging.error(f"Error in trigger_scrape: {str(e)}")
-        import traceback
         logging.error(f"Traceback: {traceback.format_exc()}")
         return jsonify({'status': 'error', 'message': f'Server error: {str(e)}'})
 
@@ -180,7 +185,6 @@ def get_articles():
             return jsonify([])
     except Exception as e:
         logging.error(f"Error loading articles: {str(e)}")
-        import traceback
         logging.error(f"Traceback: {traceback.format_exc()}")
         return jsonify({'error': str(e)})
 
