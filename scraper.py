@@ -69,11 +69,11 @@ class AntiAgingScraper:
             article_links = soup.find_all('a', href=True)
             
             for link in article_links[:SCRAPING_SETTINGS['max_articles_per_site']]:
-                href = link.get('href')
-                if href and self._is_article_url(href):
+                href = link.get('href') if hasattr(link, 'get') else ''
+                if isinstance(href, str) and self._is_article_url(href):
                     article = {
-                        'title': link.get_text(strip=True),
-                        'url': href if href.startswith('http') else f"{url.rstrip('/')}/{href.lstrip('/')}",
+                        'title': link.get_text(strip=True) if hasattr(link, 'get_text') else '',
+                        'url': href if href.startswith('http') else f"{url.rstrip('/')}/{href.lstrip('/')}" if isinstance(href, str) else '',
                         'published_date': '',
                         'summary': '',
                         'source': site_name
@@ -108,9 +108,12 @@ class AntiAgingScraper:
         date_threshold = datetime.now() - timedelta(days=SCRAPING_SETTINGS.get('date_filter_days', 30))
         
         for article in articles:
-            title = article.get('title', '').lower()
-            summary = article.get('summary', '').lower()
-            published_date = article.get('published_date', '')
+            if isinstance(article, dict):
+                article['title'] = self.clean_html(article.get('title', ''))
+                article['summary'] = self.clean_html(article.get('summary', ''))
+                published_date = article.get('published_date', '')
+            else:
+                published_date = ''
             
             # DATE FILTERING - Only include recent articles (last 30 days)
             if SCRAPING_SETTINGS.get('require_recent_articles', True) and published_date:
@@ -126,24 +129,24 @@ class AntiAgingScraper:
                             article_date = datetime.strptime(published_date[:10], '%Y-%m-%d')
                         
                         if article_date < date_threshold:
-                            self.logger.info(f"Article '{title[:50]}...' filtered out (too old: {published_date})")
+                            self.logger.info(f"Article '{article['title'][:50]}...' filtered out (too old: {published_date})")
                             continue
                 except Exception as e:
-                    self.logger.warning(f"Could not parse date '{published_date}' for article '{title[:50]}...': {str(e)}")
+                    self.logger.warning(f"Could not parse date '{published_date}' for article '{article['title'][:50]}...': {str(e)}")
                     # If we can't parse the date, include the article (don't filter out)
             
             # STRICT TITLE FILTERING - Only include articles with title keywords
             if SCRAPING_SETTINGS.get('strict_title_filtering', True):
-                title_matches = any(keyword.lower() in title for keyword in TITLE_KEYWORDS)
+                title_matches = any(keyword.lower() in article['title'] for keyword in TITLE_KEYWORDS)
                 
                 if not title_matches:
                     # Skip articles that don't have required title keywords
                     continue
                 
-                self.logger.info(f"Article '{title[:50]}...' passed title filter")
+                self.logger.info(f"Article '{article['title'][:50]}...' passed title filter")
             
             # Additional content filtering (optional)
-            content_matches = any(keyword.lower() in title or keyword.lower() in summary 
+            content_matches = any(keyword.lower() in article['title'] or keyword.lower() in article['summary'] 
                                  for keyword in CONTENT_KEYWORDS)
             
             if content_matches:
@@ -168,11 +171,11 @@ class AntiAgingScraper:
             
             # Update article with extracted information
             article.update({
-                'title': news_article.title or article.get('title', ''),
-                'summary': news_article.text[:500] if news_article.text else article.get('summary', ''),
-                'published_date': news_article.publish_date.isoformat() if news_article.publish_date else article.get('published_date', ''),
-                'authors': ', '.join(news_article.authors) if news_article.authors else '',
-                'keywords': ', '.join(news_article.keywords) if news_article.keywords else ''
+                'title': self.clean_html(news_article.title) if hasattr(news_article, 'title') else (article['title'] if isinstance(article, dict) and 'title' in article else ''),
+                'summary': self.clean_html(news_article.text[:500]) if hasattr(news_article, 'text') and news_article.text else (article['summary'] if isinstance(article, dict) and 'summary' in article else ''),
+                'published_date': news_article.publish_date.isoformat() if hasattr(news_article, 'publish_date') and news_article.publish_date and hasattr(news_article.publish_date, 'isoformat') else (article['published_date'] if isinstance(article, dict) and 'published_date' in article else ''),
+                'authors': ', '.join(news_article.authors) if hasattr(news_article, 'authors') and news_article.authors else '',
+                'keywords': ', '.join(news_article.keywords) if hasattr(news_article, 'keywords') and news_article.keywords else ''
             })
             
             time.sleep(SCRAPING_SETTINGS['request_delay'])
@@ -225,11 +228,11 @@ class AntiAgingScraper:
             result_links = soup.find_all('a', href=True)
             
             for link in result_links[:SCRAPING_SETTINGS['max_articles_per_site']]:
-                href = link.get('href')
-                if href and '/science/article/' in href:
+                href = link.get('href') if hasattr(link, 'get') else ''
+                if isinstance(href, str) and '/science/article/' in href:
                     article = {
-                        'title': link.get_text(strip=True),
-                        'url': href if href.startswith('http') else f"https://www.sciencedirect.com{href}",
+                        'title': link.get_text(strip=True) if hasattr(link, 'get_text') else '',
+                        'url': href if href.startswith('http') else f"https://www.sciencedirect.com{href}" if isinstance(href, str) else '',
                         'published_date': '',
                         'summary': '',
                         'source': site_name
@@ -305,6 +308,12 @@ class AntiAgingScraper:
             
         except Exception as e:
             self.logger.error(f"Error during scraping: {str(e)}")
+
+    def clean_html(self, raw_html):
+        if not isinstance(raw_html, str):
+            return str(raw_html)
+        cleanr = re.compile('<.*?>')
+        return re.sub(cleanr, '', raw_html)
 
 if __name__ == "__main__":
     scraper = AntiAgingScraper()
