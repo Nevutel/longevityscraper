@@ -305,7 +305,7 @@
             document.getElementById('scan-status').textContent = 'Scanning';
             showStatus('Starting research scan...', 'warning');
             try {
-                const response = await fetch('/api/scan', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+                const response = await fetch('/api/scrape', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
                 if (data.success) {
