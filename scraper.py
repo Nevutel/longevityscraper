@@ -144,7 +144,7 @@ class AntiAgingScraper:
                 relevance_score = self.calculate_relevance_score(article)
                 
                 # Only include articles with sufficient relevance
-                if relevance_score < 2:  # Minimum score threshold
+                if relevance_score < 5:  # Increased minimum score threshold
                     self.logger.info(f"Article '{article['title'][:50]}...' filtered out (low relevance score: {relevance_score})")
                     continue
                 
@@ -166,47 +166,49 @@ class AntiAgingScraper:
         summary = article.get('summary', '').lower()
         source = article.get('source', '').lower()
         
-        # Primary keywords (high weight)
-        primary_keywords = ['anti-aging', 'longevity', 'senescence', 'aging research', 'life extension']
+        # PRIMARY REQUIREMENT: Must have at least one primary anti-aging keyword
+        primary_keywords = ['anti-aging', 'longevity', 'senescence', 'aging research', 'life extension', 'antiaging']
+        has_primary_keyword = False
+        
         for keyword in primary_keywords:
             if keyword in title:
+                score += 5
+                has_primary_keyword = True
+            if keyword in summary:
                 score += 3
-            if keyword in summary:
-                score += 2
+                has_primary_keyword = True
         
-        # Secondary keywords (medium weight)
-        secondary_keywords = ['telomere', 'sirtuin', 'rapamycin', 'metformin', 'nad+', 'mitochondria', 
-                            'autophagy', 'cellular aging', 'biological age', 'epigenetic clock', 
-                            'senolytics', 'gerontology', 'oxidative stress', 'inflammation']
-        for keyword in secondary_keywords:
-            if keyword in title:
-                score += 2
-            if keyword in summary:
-                score += 1
+        # If no primary keywords found, heavily penalize
+        if not has_primary_keyword:
+            score -= 10
         
-        # Tertiary keywords (low weight)
-        tertiary_keywords = ['health', 'medicine', 'research', 'study', 'clinical trial', 'treatment', 
-                           'therapy', 'drug', 'molecule', 'protein', 'gene', 'dna', 'cell']
-        for keyword in tertiary_keywords:
-            if keyword in title:
-                score += 1
-            if keyword in summary:
-                score += 0.5
+        # Secondary keywords (medium weight) - only if primary keywords exist
+        if has_primary_keyword:
+            secondary_keywords = ['telomere', 'sirtuin', 'rapamycin', 'metformin', 'nad+', 'mitochondria', 
+                                'autophagy', 'cellular aging', 'biological age', 'epigenetic clock', 
+                                'senolytics', 'gerontology', 'oxidative stress', 'inflammation']
+            for keyword in secondary_keywords:
+                if keyword in title:
+                    score += 2
+                if keyword in summary:
+                    score += 1
         
-        # Bonus for relevant sources
-        relevant_sources = ['nature', 'cell', 'science', 'aging', 'longevity', 'gerontology']
-        for source_keyword in relevant_sources:
-            if source_keyword in source:
-                score += 1
+        # Bonus for relevant sources (only if primary keywords exist)
+        if has_primary_keyword:
+            relevant_sources = ['nature', 'cell', 'science', 'aging', 'longevity', 'gerontology']
+            for source_keyword in relevant_sources:
+                if source_keyword in source:
+                    score += 1
         
-        # Penalty for clearly irrelevant content
+        # Heavy penalty for clearly irrelevant content
         irrelevant_keywords = ['covid', 'vaccine', 'politics', 'election', 'sports', 'entertainment', 
-                             'celebrity', 'weather', 'traffic', 'crime', 'accident']
+                             'celebrity', 'weather', 'traffic', 'crime', 'accident', 'gender', 'pediatric',
+                             'pain', 'chronic pain', 'digital health', 'master degree', 'education']
         for keyword in irrelevant_keywords:
             if keyword in title:
-                score -= 2
+                score -= 5
             if keyword in summary:
-                score -= 1
+                score -= 3
         
         return max(0, int(score))  # Ensure non-negative score
     
