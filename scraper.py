@@ -213,10 +213,13 @@ class AntiAgingScraper:
             # Filter articles by keywords
             filtered_articles = self.filter_articles_by_keywords(articles)
             
-            # Extract detailed information for filtered articles
-            for article in filtered_articles:
-                detailed_article = self.extract_article_details(article)
-                all_articles.append(detailed_article)
+            # Skip detailed extraction for now to speed up scraping
+            # for article in filtered_articles:
+            #     detailed_article = self.extract_article_details(article)
+            #     all_articles.append(detailed_article)
+            
+            # Add filtered articles directly
+            all_articles.extend(filtered_articles)
             
             time.sleep(SCRAPING_SETTINGS['request_delay'])
         

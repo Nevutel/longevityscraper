@@ -118,9 +118,9 @@ SCRAPING_SETTINGS = {
 
 # Output settings
 OUTPUT_SETTINGS = {
-    "output_file": "/tmp/anti_aging_research.csv",
-    "backup_file": "/tmp/anti_aging_research_backup.csv",
-    "log_file": "/tmp/scraper.log"
+    "output_file": "anti_aging_research.csv",
+    "backup_file": "anti_aging_research_backup.csv",
+    "log_file": "scraper.log"
 }
 
 # OpenAI settings (for summarization)
