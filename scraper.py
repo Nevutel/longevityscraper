@@ -104,7 +104,7 @@ class AntiAgingScraper:
         return any(re.search(pattern, url, re.IGNORECASE) for pattern in article_patterns)
     
     def filter_articles_by_keywords(self, articles: List[Dict]) -> List[Dict]:
-        """Filter articles based on keywords with flexible filtering and date filtering"""
+        """Filter articles based on keywords with intelligent content-based filtering"""
         filtered_articles = []
         
         # Get target year for filtering
@@ -138,30 +138,77 @@ class AntiAgingScraper:
                     self.logger.warning(f"Could not parse date '{published_date}' for article '{article['title'][:50]}...': {str(e)}")
                     # If we can't parse the date, include the article (don't filter out)
             
-            # FLEXIBLE TITLE FILTERING - Include articles with or without title keywords
-            if SCRAPING_SETTINGS.get('strict_title_filtering', False):
-                # Only apply strict filtering if enabled
-                title_matches = any(keyword.lower() in article['title'] for keyword in TITLE_KEYWORDS)
+            # INTELLIGENT CONTENT FILTERING
+            if SCRAPING_SETTINGS.get('content_filtering', True):
+                # Check for relevance using a scoring system
+                relevance_score = self.calculate_relevance_score(article)
                 
-                if not title_matches:
-                    # Skip articles that don't have required title keywords
+                # Only include articles with sufficient relevance
+                if relevance_score < 2:  # Minimum score threshold
+                    self.logger.info(f"Article '{article['title'][:50]}...' filtered out (low relevance score: {relevance_score})")
                     continue
                 
-                self.logger.info(f"Article '{article['title'][:50]}...' passed title filter")
+                self.logger.info(f"Article '{article['title'][:50]}...' passed content filter (score: {relevance_score})")
             
-            # Additional content filtering (optional) - but don't require it
-            content_matches = any(keyword.lower() in article['title'] or keyword.lower() in article['summary'] 
-                                 for keyword in CONTENT_KEYWORDS)
-            
-            # Include articles even if they don't match content keywords (more flexible)
-            if content_matches or not SCRAPING_SETTINGS.get('strict_title_filtering', False):
-                filtered_articles.append(article)
+            # Include the article
+            filtered_articles.append(article)
         
         # Sort articles by published date (most recent first)
         filtered_articles.sort(key=lambda x: x.get('published_date', ''), reverse=True)
         
-        self.logger.info(f"Filtered {len(filtered_articles)} relevant articles from {len(articles)} total (strict title filtering: {SCRAPING_SETTINGS.get('strict_title_filtering', False)}, year filtering: {target_year})")
+        self.logger.info(f"Filtered {len(filtered_articles)} relevant articles from {len(articles)} total (content filtering: {SCRAPING_SETTINGS.get('content_filtering', True)}, year filtering: {target_year})")
         return filtered_articles
+    
+    def calculate_relevance_score(self, article: Dict) -> int:
+        """Calculate relevance score for anti-aging research"""
+        score = 0
+        title = article.get('title', '').lower()
+        summary = article.get('summary', '').lower()
+        source = article.get('source', '').lower()
+        
+        # Primary keywords (high weight)
+        primary_keywords = ['anti-aging', 'longevity', 'senescence', 'aging research', 'life extension']
+        for keyword in primary_keywords:
+            if keyword in title:
+                score += 3
+            if keyword in summary:
+                score += 2
+        
+        # Secondary keywords (medium weight)
+        secondary_keywords = ['telomere', 'sirtuin', 'rapamycin', 'metformin', 'nad+', 'mitochondria', 
+                            'autophagy', 'cellular aging', 'biological age', 'epigenetic clock', 
+                            'senolytics', 'gerontology', 'oxidative stress', 'inflammation']
+        for keyword in secondary_keywords:
+            if keyword in title:
+                score += 2
+            if keyword in summary:
+                score += 1
+        
+        # Tertiary keywords (low weight)
+        tertiary_keywords = ['health', 'medicine', 'research', 'study', 'clinical trial', 'treatment', 
+                           'therapy', 'drug', 'molecule', 'protein', 'gene', 'dna', 'cell']
+        for keyword in tertiary_keywords:
+            if keyword in title:
+                score += 1
+            if keyword in summary:
+                score += 0.5
+        
+        # Bonus for relevant sources
+        relevant_sources = ['nature', 'cell', 'science', 'aging', 'longevity', 'gerontology']
+        for source_keyword in relevant_sources:
+            if source_keyword in source:
+                score += 1
+        
+        # Penalty for clearly irrelevant content
+        irrelevant_keywords = ['covid', 'vaccine', 'politics', 'election', 'sports', 'entertainment', 
+                             'celebrity', 'weather', 'traffic', 'crime', 'accident']
+        for keyword in irrelevant_keywords:
+            if keyword in title:
+                score -= 2
+            if keyword in summary:
+                score -= 1
+        
+        return max(0, int(score))  # Ensure non-negative score
     
     def extract_article_details(self, article: Dict) -> Dict:
         """Extract detailed information from article URL"""
