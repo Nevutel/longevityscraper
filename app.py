@@ -110,25 +110,20 @@ def trigger_scrape():
     """API endpoint to trigger scraping"""
     try:
         logging.info("Scrape endpoint called")
-        
         if scraping_status['is_running']:
             logging.info("Scraping already in progress")
-            return jsonify({'status': 'error', 'message': 'Scraping already in progress'})
-        
+            return jsonify({'success': False, 'error': 'Scraping already in progress'})
         logging.info("Starting scraping in background thread")
-        
         # Start scraping in background thread
         thread = threading.Thread(target=run_scraper_background)
         thread.daemon = True
         thread.start()
-        
         logging.info("Scraping thread started successfully")
-        return jsonify({'status': 'success', 'message': 'Scraping started'})
-        
+        return jsonify({'success': True, 'message': 'Scraping started'})
     except Exception as e:
         logging.error(f"Error in trigger_scrape: {str(e)}")
         logging.error(f"Traceback: {traceback.format_exc()}")
-        return jsonify({'status': 'error', 'message': f'Server error: {str(e)}'})
+        return jsonify({'success': False, 'error': f'Server error: {str(e)}'})
 
 @app.route('/api/status')
 def get_status():
