@@ -323,12 +323,18 @@
                     await loadArticles();
                     showStatus(`Research scan completed! Found ${status.articles_count || 0} articles.`, 'success');
                     isScanning = false;
-                    document.getElementById('scan-btn').disabled = false;
+                    const scanBtn = document.getElementById('scan-btn');
+                    scanBtn.innerHTML = '<i class="fas fa-play"></i> Start Research Scan';
+                    scanBtn.disabled = false;
+                    document.getElementById('scan-status').textContent = 'Ready';
                 }
             } catch (e) {
                 showStatus('Error checking scan status: ' + e.message, 'danger');
                 isScanning = false;
-                document.getElementById('scan-btn').disabled = false;
+                const scanBtn = document.getElementById('scan-btn');
+                scanBtn.innerHTML = '<i class="fas fa-play"></i> Start Research Scan';
+                scanBtn.disabled = false;
+                document.getElementById('scan-status').textContent = 'Ready';
             }
         }
         async function startScan() {
