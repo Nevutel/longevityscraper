@@ -104,7 +104,7 @@ class AntiAgingScraper:
         return any(re.search(pattern, url, re.IGNORECASE) for pattern in article_patterns)
     
     def filter_articles_by_keywords(self, articles: List[Dict]) -> List[Dict]:
-        """Filter articles based on keywords with strict title filtering and date filtering"""
+        """Filter articles based on keywords with flexible filtering and date filtering"""
         filtered_articles = []
         
         # Get target year for filtering
@@ -118,7 +118,7 @@ class AntiAgingScraper:
             else:
                 published_date = ''
             
-            # DATE FILTERING - Only include articles from 2025
+            # DATE FILTERING - Only include articles from 2025 (but be flexible with missing dates)
             if SCRAPING_SETTINGS.get('require_recent_articles', True) and published_date:
                 try:
                     # Try to parse the published date
@@ -138,8 +138,9 @@ class AntiAgingScraper:
                     self.logger.warning(f"Could not parse date '{published_date}' for article '{article['title'][:50]}...': {str(e)}")
                     # If we can't parse the date, include the article (don't filter out)
             
-            # STRICT TITLE FILTERING - Only include articles with title keywords
-            if SCRAPING_SETTINGS.get('strict_title_filtering', True):
+            # FLEXIBLE TITLE FILTERING - Include articles with or without title keywords
+            if SCRAPING_SETTINGS.get('strict_title_filtering', False):
+                # Only apply strict filtering if enabled
                 title_matches = any(keyword.lower() in article['title'] for keyword in TITLE_KEYWORDS)
                 
                 if not title_matches:
@@ -148,17 +149,18 @@ class AntiAgingScraper:
                 
                 self.logger.info(f"Article '{article['title'][:50]}...' passed title filter")
             
-            # Additional content filtering (optional)
+            # Additional content filtering (optional) - but don't require it
             content_matches = any(keyword.lower() in article['title'] or keyword.lower() in article['summary'] 
                                  for keyword in CONTENT_KEYWORDS)
             
-            if content_matches:
+            # Include articles even if they don't match content keywords (more flexible)
+            if content_matches or not SCRAPING_SETTINGS.get('strict_title_filtering', False):
                 filtered_articles.append(article)
         
         # Sort articles by published date (most recent first)
         filtered_articles.sort(key=lambda x: x.get('published_date', ''), reverse=True)
         
-        self.logger.info(f"Filtered {len(filtered_articles)} relevant articles from {len(articles)} total (strict title filtering: {SCRAPING_SETTINGS.get('strict_title_filtering', True)}, year filtering: {target_year})")
+        self.logger.info(f"Filtered {len(filtered_articles)} relevant articles from {len(articles)} total (strict title filtering: {SCRAPING_SETTINGS.get('strict_title_filtering', False)}, year filtering: {target_year})")
         return filtered_articles
     
     def extract_article_details(self, article: Dict) -> Dict:

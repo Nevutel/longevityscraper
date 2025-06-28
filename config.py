@@ -110,8 +110,8 @@ SCRAPING_SETTINGS = {
     "request_delay": 1,  # seconds between requests
     "timeout": 30,  # seconds
     "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-    "strict_title_filtering": True,  # Only include articles with title keywords
-    "title_filter_required": True,    # Require at least one title keyword match
+    "strict_title_filtering": False,  # Allow articles without exact title keywords
+    "title_filter_required": False,    # Don't require title keyword match
     "date_filter_year": 2025,        # Only include articles from 2025
     "require_recent_articles": True   # Enable date filtering
 }
