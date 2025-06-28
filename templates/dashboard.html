@@ -303,7 +303,6 @@
             scanBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning...';
             scanBtn.disabled = true;
             document.getElementById('scan-status').textContent = 'Scanning';
-            showStatus('Starting research scan...', 'warning');
             try {
                 const response = await fetch('/api/scrape', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
