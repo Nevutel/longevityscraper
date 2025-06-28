@@ -39,12 +39,13 @@ class AntiAgingScraper:
             articles = []
             
             for entry in feed.entries[:SCRAPING_SETTINGS['max_articles_per_site']]:
+                # Use getattr for safer attribute access
                 article = {
-                    'title': entry.get('title', ''),
-                    'url': entry.get('link', ''),
-                    'published_date': entry.get('published', ''),
-                    'summary': entry.get('summary', ''),
-                    'source': feed.feed.get('title', 'Unknown')
+                    'title': getattr(entry, 'title', ''),
+                    'url': getattr(entry, 'link', ''),
+                    'published_date': getattr(entry, 'published', ''),
+                    'summary': getattr(entry, 'summary', ''),
+                    'source': getattr(feed.feed, 'title', 'Unknown')
                 }
                 articles.append(article)
                 
@@ -69,7 +70,9 @@ class AntiAgingScraper:
             article_links = soup.find_all('a', href=True)
             
             for link in article_links[:SCRAPING_SETTINGS['max_articles_per_site']]:
-                href = link.get('href') if hasattr(link, 'get') else ''
+                # Use getattr for safer attribute access
+                href = getattr(link, 'href', '')
+                
                 if isinstance(href, str) and self._is_article_url(href):
                     article = {
                         'title': link.get_text(strip=True) if hasattr(link, 'get_text') else '',
@@ -104,8 +107,8 @@ class AntiAgingScraper:
         """Filter articles based on keywords with strict title filtering and date filtering"""
         filtered_articles = []
         
-        # Calculate date threshold (30 days ago)
-        date_threshold = datetime.now() - timedelta(days=SCRAPING_SETTINGS.get('date_filter_days', 30))
+        # Get target year for filtering
+        target_year = SCRAPING_SETTINGS.get('date_filter_year', 2025)
         
         for article in articles:
             if isinstance(article, dict):
@@ -115,21 +118,21 @@ class AntiAgingScraper:
             else:
                 published_date = ''
             
-            # DATE FILTERING - Only include recent articles (last 30 days)
+            # DATE FILTERING - Only include articles from 2025
             if SCRAPING_SETTINGS.get('require_recent_articles', True) and published_date:
                 try:
                     # Try to parse the published date
                     if isinstance(published_date, str):
                         # Handle different date formats
                         if 'T' in published_date:
-                            # ISO format: 2024-01-15T10:30:00
+                            # ISO format: 2025-01-15T10:30:00
                             article_date = datetime.fromisoformat(published_date.replace('Z', '+00:00'))
                         else:
-                            # Simple date format: 2024-01-15
+                            # Simple date format: 2025-01-15
                             article_date = datetime.strptime(published_date[:10], '%Y-%m-%d')
                         
-                        if article_date < date_threshold:
-                            self.logger.info(f"Article '{article['title'][:50]}...' filtered out (too old: {published_date})")
+                        if article_date.year != target_year:
+                            self.logger.info(f"Article '{article['title'][:50]}...' filtered out (wrong year: {article_date.year})")
                             continue
                 except Exception as e:
                     self.logger.warning(f"Could not parse date '{published_date}' for article '{article['title'][:50]}...': {str(e)}")
@@ -152,13 +155,16 @@ class AntiAgingScraper:
             if content_matches:
                 filtered_articles.append(article)
         
-        self.logger.info(f"Filtered {len(filtered_articles)} relevant articles from {len(articles)} total (strict title filtering: {SCRAPING_SETTINGS.get('strict_title_filtering', True)}, date filtering: {SCRAPING_SETTINGS.get('require_recent_articles', True)})")
+        # Sort articles by published date (most recent first)
+        filtered_articles.sort(key=lambda x: x.get('published_date', ''), reverse=True)
+        
+        self.logger.info(f"Filtered {len(filtered_articles)} relevant articles from {len(articles)} total (strict title filtering: {SCRAPING_SETTINGS.get('strict_title_filtering', True)}, year filtering: {target_year})")
         return filtered_articles
     
     def extract_article_details(self, article: Dict) -> Dict:
         """Extract detailed information from article URL"""
         try:
-            url = article.get('url')
+            url = article.get('url') if isinstance(article, dict) else ''
             if not url:
                 return article
             
@@ -171,9 +177,9 @@ class AntiAgingScraper:
             
             # Update article with extracted information
             article.update({
-                'title': self.clean_html(news_article.title) if hasattr(news_article, 'title') else (article['title'] if isinstance(article, dict) and 'title' in article else ''),
-                'summary': self.clean_html(news_article.text[:500]) if hasattr(news_article, 'text') and news_article.text else (article['summary'] if isinstance(article, dict) and 'summary' in article else ''),
-                'published_date': news_article.publish_date.isoformat() if hasattr(news_article, 'publish_date') and news_article.publish_date and hasattr(news_article.publish_date, 'isoformat') else (article['published_date'] if isinstance(article, dict) and 'published_date' in article else ''),
+                'title': self.clean_html(news_article.title) if hasattr(news_article, 'title') else (article.get('title', '') if isinstance(article, dict) else ''),
+                'summary': self.clean_html(news_article.text[:500]) if hasattr(news_article, 'text') and news_article.text else (article.get('summary', '') if isinstance(article, dict) else ''),
+                'published_date': news_article.publish_date.isoformat() if hasattr(news_article, 'publish_date') and news_article.publish_date and hasattr(news_article.publish_date, 'isoformat') and hasattr(news_article.publish_date, 'year') else (article.get('published_date', '') if isinstance(article, dict) else ''),
                 'authors': ', '.join(news_article.authors) if hasattr(news_article, 'authors') and news_article.authors else '',
                 'keywords': ', '.join(news_article.keywords) if hasattr(news_article, 'keywords') and news_article.keywords else ''
             })
@@ -228,7 +234,9 @@ class AntiAgingScraper:
             result_links = soup.find_all('a', href=True)
             
             for link in result_links[:SCRAPING_SETTINGS['max_articles_per_site']]:
-                href = link.get('href') if hasattr(link, 'get') else ''
+                # Use getattr for safer attribute access
+                href = getattr(link, 'href', '')
+                
                 if isinstance(href, str) and '/science/article/' in href:
                     article = {
                         'title': link.get_text(strip=True) if hasattr(link, 'get_text') else '',
@@ -252,18 +260,17 @@ class AntiAgingScraper:
             return
         
         try:
-            # Clean the articles data before creating DataFrame
             cleaned_articles = []
             for article in articles:
                 cleaned_article = {}
                 for key, value in article.items():
-                    # Handle None, NaN, and empty values
-                    if value is None or (isinstance(value, str) and value.lower() in ['nan', 'none', '']):
-                        cleaned_article[key] = ''
-                    elif isinstance(value, (int, float)) and (pd.isna(value) or str(value) == 'nan'):
-                        cleaned_article[key] = ''
+                    if key in ('title', 'summary'):
+                        text = self.clean_html(value)
+                        if not text.strip():
+                            text = 'Untitled' if key == 'title' else 'No summary available'
+                        cleaned_article[key] = text
                     else:
-                        cleaned_article[key] = str(value) if value is not None else ''
+                        cleaned_article[key] = value if value is not None else ''
                 cleaned_articles.append(cleaned_article)
             
             df = pd.DataFrame(cleaned_articles)

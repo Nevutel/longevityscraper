@@ -188,8 +188,28 @@
             content: '...';
             animation: none;
         }
+        .form-select, .form-control {
+            background: #fff;
+            border: 1px solid #e3e8ee;
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-select:focus, .form-control:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .article-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
         @media (max-width: 900px) {
             .stats-row { flex-direction: column; align-items: center; }
+            .article-controls { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
@@ -239,10 +259,33 @@
             </div>
         </div>
         <div class="filter-info">
-            <strong>Recent Research Focus:</strong> Articles from the last 30 days &bull; <strong>Scientific Focus:</strong> Anti-aging, longevity, and senescence research &bull; <strong>Source Quality:</strong> 12 leading scientific sources
+            <strong>Recent Research Focus:</strong> Articles from 2025 &bull; <strong>Scientific Keywords Include:</strong>
+            <ul style="margin: 8px 0 0 20px; padding: 0;">
+                <li>Anti-aging, longevity, and senescence research</li>
+                <li>Telomere, sirtuin, rapamycin, metformin</li>
+                <li>NAD+, mitochondria, autophagy, inflammation</li>
+                <li>Oxidative stress, cellular aging, biological age</li>
+                <li>Epigenetic clock, senolytics</li>
+            </ul>
+            <strong>Source Quality:</strong> 12 leading scientific sources
         </div>
         <div class="articles-section">
-            <h3 style="color:#2563eb; font-weight:700; margin-bottom:1.5rem;"><i class="fas fa-list"></i> Latest Research Articles</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                <h3 style="color:#2563eb; font-weight:700; margin:0;"><i class="fas fa-list"></i> Latest Research Articles</h3>
+                <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                    <select id="sort-select" class="form-select" style="min-width: 150px; border-radius: 8px; border: 1px solid #e3e8ee;">
+                        <option value="date-desc">Most Recent First</option>
+                        <option value="date-asc">Oldest First</option>
+                        <option value="title-asc">Title A-Z</option>
+                        <option value="title-desc">Title Z-A</option>
+                        <option value="source-asc">Source A-Z</option>
+                    </select>
+                    <select id="filter-source" class="form-select" style="min-width: 150px; border-radius: 8px; border: 1px solid #e3e8ee;">
+                        <option value="">All Sources</option>
+                    </select>
+                    <input type="text" id="search-input" placeholder="Search articles..." class="form-control" style="min-width: 200px; border-radius: 8px; border: 1px solid #e3e8ee;">
+                </div>
+            </div>
             <div id="articles-container">
                 <div class="loading">
                     <div class="spinner-border text-primary" role="status">
@@ -258,29 +301,107 @@
         let isScanning = false;
         let scanStatusPoll = null;
         let articles = [];
+        let filteredArticles = [];
+        
         document.addEventListener('DOMContentLoaded', function() {
             loadArticles();
             updateStats();
+            setupEventListeners();
         });
+        
+        function setupEventListeners() {
+            document.getElementById('sort-select').addEventListener('change', function() {
+                sortAndDisplayArticles();
+            });
+            
+            document.getElementById('filter-source').addEventListener('change', function() {
+                filterAndDisplayArticles();
+            });
+            
+            document.getElementById('search-input').addEventListener('input', function() {
+                filterAndDisplayArticles();
+            });
+        }
+        
+        function populateSourceFilter() {
+            const sourceFilter = document.getElementById('filter-source');
+            const sources = [...new Set(articles.map(article => article.source))].sort();
+            
+            // Clear existing options except "All Sources"
+            sourceFilter.innerHTML = '<option value="">All Sources</option>';
+            
+            sources.forEach(source => {
+                const option = document.createElement('option');
+                option.value = source;
+                option.textContent = source;
+                sourceFilter.appendChild(option);
+            });
+        }
+        
+        function sortAndDisplayArticles() {
+            const sortBy = document.getElementById('sort-select').value;
+            
+            filteredArticles.sort((a, b) => {
+                switch(sortBy) {
+                    case 'date-desc':
+                        return new Date(b.published_date || 0) - new Date(a.published_date || 0);
+                    case 'date-asc':
+                        return new Date(a.published_date || 0) - new Date(b.published_date || 0);
+                    case 'title-asc':
+                        return (a.title || '').localeCompare(b.title || '');
+                    case 'title-desc':
+                        return (b.title || '').localeCompare(a.title || '');
+                    case 'source-asc':
+                        return (a.source || '').localeCompare(b.source || '');
+                    default:
+                        return 0;
+                }
+            });
+            
+            displayArticles(filteredArticles);
+        }
+        
+        function filterAndDisplayArticles() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const selectedSource = document.getElementById('filter-source').value;
+            
+            filteredArticles = articles.filter(article => {
+                const matchesSearch = !searchTerm || 
+                    (article.title && article.title.toLowerCase().includes(searchTerm)) ||
+                    (article.summary && article.summary.toLowerCase().includes(searchTerm)) ||
+                    (article.source && article.source.toLowerCase().includes(searchTerm));
+                
+                const matchesSource = !selectedSource || article.source === selectedSource;
+                
+                return matchesSearch && matchesSource;
+            });
+            
+            sortAndDisplayArticles();
+        }
+        
         async function loadArticles() {
             try {
                 const response = await fetch('/api/articles');
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
                 articles = data.articles || data || [];
-                displayArticles(articles);
+                filteredArticles = [...articles];
+                displayArticles(filteredArticles);
+                populateSourceFilter();
                 updateStats();
             } catch (error) {
                 showStatus('Error loading articles: ' + error.message, 'danger');
                 displayArticles([]);
             }
         }
+        
         function displayArticles(articles) {
             const container = document.getElementById('articles-container');
             if (!articles || articles.length === 0) {
                 container.innerHTML = `<div class="text-center py-5"><i class="fas fa-search fa-3x text-muted mb-3"></i><h4 class="text-muted">No articles found</h4><p class="text-muted">Click \"Start Research Scan\" to begin collecting recent anti-aging research articles.</p></div>`;
                 return;
             }
+            
             const articlesHtml = articles.map(article => `
                 <div class="article-card">
                     <h4 class="article-title">${escapeHtml(article.title)}</h4>

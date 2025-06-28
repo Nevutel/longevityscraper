@@ -112,7 +112,7 @@ SCRAPING_SETTINGS = {
     "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
     "strict_title_filtering": True,  # Only include articles with title keywords
     "title_filter_required": True,    # Require at least one title keyword match
-    "date_filter_days": 30,          # Only include articles from last 30 days
+    "date_filter_year": 2025,        # Only include articles from 2025
     "require_recent_articles": True   # Enable date filtering
 }
 
